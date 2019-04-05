@@ -11,6 +11,7 @@ import { FormattedMessage } from 'react-intl';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import { createStructuredSelector } from 'reselect';
+import { DropTarget } from 'react-dnd';
 
 import injectReducer from 'utils/injectReducer';
 import injectSaga from 'utils/injectSaga';
@@ -26,12 +27,14 @@ import CenteredSection from './CenteredSection';
 import Form from './Form';
 import Input from './Input';
 import Section from './Section';
+import DraggableBlock from '../../components/DraggableBlock';
 import messages from './messages';
 import { loadRepos } from '../App/actions';
-import { changeUsername } from './actions';
-import { makeSelectUsername } from './selectors';
-import reducer from './reducer';
-import saga from './saga';
+import { changeUsername, dropDraggable } from './actions';
+import { DRAGGABLE } from './constants';
+import { makeSelectDnd, makeSelectUsername } from './selectors';
+import { dragReducer, homeReducer } from './reducer';
+import saga, { dndSaga } from './saga';
 
 /* eslint-disable react/prefer-stateless-function */
 export class HomePage extends React.PureComponent {
@@ -45,7 +48,7 @@ export class HomePage extends React.PureComponent {
   }
 
   render() {
-    const { loading, error, repos } = this.props;
+    const { connectDropTarget, items, loading, error, repos } = this.props;
     const reposListProps = {
       loading,
       error,
@@ -53,7 +56,7 @@ export class HomePage extends React.PureComponent {
     };
 
     return (
-      <article>
+      <article ref={connectDropTarget}>
         <Helmet>
           <title>Home Page</title>
           <meta
@@ -70,6 +73,26 @@ export class HomePage extends React.PureComponent {
               <FormattedMessage {...messages.startProjectMessage} />
             </p>
           </CenteredSection>
+          <Section>
+            <DraggableBlock
+              id="1"
+              color="red"
+              top={items[1].top}
+              left={items[1].left}
+            />
+            <DraggableBlock
+              id="2"
+              color="green"
+              top={items[2].top}
+              left={items[2].left}
+            />
+            <DraggableBlock
+              id="3"
+              color="blue"
+              top={items[3].top}
+              left={items[3].left}
+            />
+          </Section>
           <Section>
             <H2>
               <FormattedMessage {...messages.trymeHeader} />
@@ -109,6 +132,8 @@ HomePage.propTypes = {
 export function mapDispatchToProps(dispatch) {
   return {
     onChangeUsername: evt => dispatch(changeUsername(evt.target.value)),
+    onDropDraggable: (id, top, left) =>
+      dispatch(dropDraggable({ id, top, left })),
     onSubmitForm: evt => {
       if (evt !== undefined && evt.preventDefault) evt.preventDefault();
       dispatch(loadRepos());
@@ -117,22 +142,48 @@ export function mapDispatchToProps(dispatch) {
 }
 
 const mapStateToProps = createStructuredSelector({
+  items: makeSelectDnd(),
   repos: makeSelectRepos(),
   username: makeSelectUsername(),
   loading: makeSelectLoading(),
   error: makeSelectError(),
 });
 
+const draggableTarget = {
+  drop(props, monitor) {
+    const item = monitor.getItem();
+    const position = monitor.getSourceClientOffset();
+
+    if (position) {
+      const { x: left, y: top } = position;
+      props.onDropDraggable(item.id, top, left);
+    }
+  },
+};
+
+function collect(con, monitor) {
+  return {
+    connectDropTarget: con.dropTarget(),
+    isOver: monitor.isOver(),
+  };
+}
+
 const withConnect = connect(
   mapStateToProps,
   mapDispatchToProps,
 );
 
-const withReducer = injectReducer({ key: 'home', reducer });
+const withHomeReducer = injectReducer({ key: 'home', reducer: homeReducer });
+const withDndReducer = injectReducer({ key: 'dnd', reducer: dragReducer });
 const withSaga = injectSaga({ key: 'home', saga });
+const withDndSaga = injectSaga({ key: 'dnd', saga: dndSaga });
+const withDropTarget = DropTarget(DRAGGABLE, draggableTarget, collect);
 
 export default compose(
-  withReducer,
+  withHomeReducer,
+  withDndReducer,
   withSaga,
+  withDndSaga,
   withConnect,
+  withDropTarget,
 )(HomePage);

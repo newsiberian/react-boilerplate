@@ -9,16 +9,16 @@
  * case YOUR_ACTION_CONSTANT:
  *   return state.set('yourStateVariable', true);
  */
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
-import { CHANGE_USERNAME } from './constants';
+import { CHANGE_USERNAME, DROP_DRAGGABLE } from './constants';
 
 // The initial state of the App
 export const initialState = fromJS({
   username: '',
 });
 
-function homeReducer(state = initialState, action) {
+export function homeReducer(state = initialState, action) {
   switch (action.type) {
     case CHANGE_USERNAME:
       // Delete prefixed '@' from the github username
@@ -28,4 +28,20 @@ function homeReducer(state = initialState, action) {
   }
 }
 
-export default homeReducer;
+export const initialDraggableState = Map({
+  1: { top: null, left: null },
+  2: { top: null, left: null },
+  3: { top: null, left: null },
+});
+
+export function dragReducer(state = initialDraggableState, action) {
+  switch (action.type) {
+    case DROP_DRAGGABLE:
+      return state.update(action.id, () => ({
+        top: action.top,
+        left: action.left,
+      }));
+    default:
+      return state;
+  }
+}

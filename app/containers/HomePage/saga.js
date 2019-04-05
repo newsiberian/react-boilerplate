@@ -2,12 +2,16 @@
  * Gets the repositories of the user from Github
  */
 
-import { call, put, select, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeLatest, takeEvery } from 'redux-saga/effects';
 import { LOAD_REPOS } from 'containers/App/constants';
 import { reposLoaded, repoLoadingError } from 'containers/App/actions';
 
 import request from 'utils/request';
-import { makeSelectUsername } from 'containers/HomePage/selectors';
+import {
+  // makeSelectDnd,
+  makeSelectUsername,
+} from 'containers/HomePage/selectors';
+import { DROP_DRAGGABLE } from './constants';
 
 /**
  * Github repos request/response handler
@@ -24,6 +28,15 @@ export function* getRepos() {
   } catch (err) {
     yield put(repoLoadingError(err));
   }
+}
+
+export function* getDraggableState(action) {
+  console.log({ id: +action.id, top: action.top, left: action.left });
+  yield;
+}
+
+export function* dndSaga() {
+  yield takeEvery(DROP_DRAGGABLE, getDraggableState);
 }
 
 /**

@@ -2,12 +2,13 @@
  * Tests for HomePage sagas
  */
 
-import { put, takeLatest } from 'redux-saga/effects';
+import { put, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import { LOAD_REPOS } from 'containers/App/constants';
 import { reposLoaded, repoLoadingError } from 'containers/App/actions';
 
-import githubData, { getRepos } from '../saga';
+import { DROP_DRAGGABLE } from '../constants';
+import githubData, { getDraggableState, getRepos, dndSaga } from '../saga';
 
 const username = 'mxstbr';
 
@@ -53,5 +54,33 @@ describe('githubDataSaga Saga', () => {
   it('should start task to watch for LOAD_REPOS action', () => {
     const takeLatestDescriptor = githubDataSaga.next().value;
     expect(takeLatestDescriptor).toEqual(takeLatest(LOAD_REPOS, getRepos));
+  });
+});
+
+describe('getDraggableState', () => {
+  it('should call console.log with correct payload', () => {
+    const spy = jest.spyOn(global.console, 'log');
+    const getDraggableStateData = getDraggableState({
+      id: '1',
+      top: 1,
+      left: 1,
+    });
+    expect(spy).not.toHaveBeenCalled();
+    getDraggableStateData.next();
+    expect(spy).toHaveBeenCalledWith({
+      id: 1,
+      top: 1,
+      left: 1,
+    });
+  });
+});
+
+describe('dndSaga Saga', () => {
+  const dndDataSaga = dndSaga();
+  it('should start task to watch for DROP_DRAGGABLE action', () => {
+    const takeEveryDescriptor = dndDataSaga.next().value;
+    expect(takeEveryDescriptor).toEqual(
+      takeEvery(DROP_DRAGGABLE, getDraggableState),
+    );
   });
 });

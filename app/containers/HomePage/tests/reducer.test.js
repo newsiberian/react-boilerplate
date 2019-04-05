@@ -1,7 +1,7 @@
-import { fromJS } from 'immutable';
+import { fromJS, Map } from 'immutable';
 
-import homeReducer from '../reducer';
-import { changeUsername } from '../actions';
+import { dragReducer, homeReducer } from '../reducer';
+import { dropDraggable, changeUsername } from '../actions';
 
 describe('homeReducer', () => {
   let state;
@@ -21,5 +21,30 @@ describe('homeReducer', () => {
     const expectedResult = state.set('username', fixture);
 
     expect(homeReducer(state, changeUsername(fixture))).toEqual(expectedResult);
+  });
+});
+
+describe('dragReducer', () => {
+  let state;
+  beforeEach(() => {
+    state = Map({
+      '1': { top: null, left: null },
+      '2': { top: null, left: null },
+      '3': { top: null, left: null },
+    });
+  });
+
+  it('should return the initial state', () => {
+    expect(dragReducer(undefined, {})).toEqual(state);
+  });
+
+  it('should return changed draggable position correctly', () => {
+    const payload = { id: '1', top: 1, left: 1 };
+    const expectedResult = state.update(payload.id, () => ({
+      top: payload.top,
+      left: payload.left,
+    }));
+
+    expect(dragReducer(state, dropDraggable(payload))).toEqual(expectedResult);
   });
 });

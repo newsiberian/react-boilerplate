@@ -15,6 +15,8 @@ import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router/immutable';
 import FontFaceObserver from 'fontfaceobserver';
 import history from 'utils/history';
+import { DragDropContextProvider } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 import 'sanitize.css/sanitize.css';
 
 // Import root app
@@ -50,9 +52,11 @@ const render = messages => {
   ReactDOM.render(
     <Provider store={store}>
       <LanguageProvider messages={messages}>
-        <ConnectedRouter history={history}>
-          <App />
-        </ConnectedRouter>
+        <DragDropContextProvider backend={HTML5Backend}>
+          <ConnectedRouter history={history}>
+            <App />
+          </ConnectedRouter>
+        </DragDropContextProvider>
       </LanguageProvider>
     </Provider>,
     MOUNT_NODE,

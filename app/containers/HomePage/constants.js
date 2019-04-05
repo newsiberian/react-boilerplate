@@ -10,3 +10,6 @@
  */
 
 export const CHANGE_USERNAME = 'boilerplate/Home/CHANGE_USERNAME';
+
+export const DRAGGABLE = 'draggable';
+export const DROP_DRAGGABLE = 'boilerplate/Home/DROP_DRAGGABLE';

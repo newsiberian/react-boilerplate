@@ -15,7 +15,7 @@
  *    }
  */
 
-import { CHANGE_USERNAME } from './constants';
+import { CHANGE_USERNAME, DROP_DRAGGABLE } from './constants';
 
 /**
  * Changes the input field of the form
@@ -28,5 +28,14 @@ export function changeUsername(name) {
   return {
     type: CHANGE_USERNAME,
     name,
+  };
+}
+
+export function dropDraggable({ id, top, left }) {
+  return {
+    type: DROP_DRAGGABLE,
+    id,
+    top,
+    left,
   };
 }
