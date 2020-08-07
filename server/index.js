@@ -14,13 +14,16 @@ const ngrok =
 const { resolve } = require('path');
 const app = express();
 
+const BUILD_FOLDER_PATH = process.env.BUILD_FOLDER_PATH || 'build';
+const PUBLIC_PATH = process.env.PUBLIC_PATH || '/';
+
 // If you need a backend, e.g. an API, add your custom backend-specific middleware here
 // app.use('/api', myApi);
 
 // In production we need to pass these values in instead of relying on webpack
 setup(app, {
-  outputPath: resolve(process.cwd(), 'build'),
-  publicPath: '/',
+  outputPath: resolve(process.cwd(), BUILD_FOLDER_PATH),
+  publicPath: PUBLIC_PATH,
 });
 
 // get the intended host and port number, use localhost and port 3000 if not provided

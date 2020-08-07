@@ -120,6 +120,8 @@ module.exports = options => ({
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+        BUILD_FOLDER_PATH: JSON.stringify(process.env.BUILD_FOLDER_PATH) || 'build',
+        PUBLIC_PATH: JSON.stringify(process.env.PUBLIC_PATH) || '/',
       },
     }),
   ]),
